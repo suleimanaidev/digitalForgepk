@@ -2323,6 +2323,15 @@ section {
   box-shadow: 0 0 0 4px rgba(75, 8, 74, 0.12);
 }
 
+.adm-pick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1 1 100%;
+  justify-content: flex-end;
+}
+
 #adm-cats {
   margin-bottom: 14px;
 }

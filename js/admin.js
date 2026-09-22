@@ -148,6 +148,7 @@ function catRowHtml(catKey, count) {
 function renderAdmin(filter = filterState) {
   const tbody = document.getElementById("admin-tbody");
   renderCatChips();
+  renderProductPick();
   const c = catalog();
   let list;
   if (filter === "hidden") list = c.hiddenList;
@@ -191,6 +192,21 @@ function renderCatChips() {
     chip("all", "All") +
     CATEGORIES.map((cat) => chip(cat.key, `${cat.icon} ${cat.name}`)).join("") +
     chip("hidden", "🗑 Hidden");
+}
+
+function renderProductPick() {
+  const sel = document.getElementById("prod-pick");
+  if (!sel) return;
+  const c = catalog();
+  const opts = (list) => list.map((p) => `<option value="${p.id}">${p.icon} ${p.title}</option>`).join("");
+  sel.innerHTML =
+    `<option value="">— Select a product to edit —</option>` +
+    CATEGORIES.map((cat) => {
+      const ps = c.shown.filter((p) => p.category === cat.key);
+      return ps.length ? `<optgroup label="${cat.icon} ${cat.name}">${opts(ps)}</optgroup>` : "";
+    }).join("") +
+    (c.hiddenList.length ? `<optgroup label="🗑 Hidden">${opts(c.hiddenList)}</optgroup>` : "");
+  sel.value = "";
 }
 
 function fillCatSelect() {
@@ -462,6 +478,14 @@ document.addEventListener("DOMContentLoaded", () => {
     byId("adm-search").addEventListener("input", (e) => {
       admQuery = e.target.value;
       renderAdmin();
+    })
+  );
+  safe(() =>
+    byId("prod-pick").addEventListener("change", (e) => {
+      if (e.target.value) {
+        editProduct(e.target.value);
+        e.target.value = "";
+      }
     })
   );
   safe(() =>

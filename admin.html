@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel — DigitalForge</title>
-  <link rel="stylesheet" href="css/style.css?v=8" />
+  <link rel="stylesheet" href="css/style.css?v=9" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>" />
 </head>
 <body data-page="admin">
@@ -168,7 +168,12 @@
               <h2>Products</h2>
               <span class="prod-count" id="prod-count">0</span>
             </div>
-            <input id="adm-search" class="adm-search" type="search" placeholder="Search products…" />
+            <div class="adm-pick">
+              <select id="prod-pick" class="adm-search" style="max-width:340px">
+                <option value="">— Select a product to edit —</option>
+              </select>
+              <input id="adm-search" class="adm-search" type="search" placeholder="Search products…" />
+            </div>
           </div>
           <div class="chips" id="adm-cats"></div>
           <p class="hint">The ✕ hides a product from the shop — restore it anytime.</p>
@@ -202,8 +207,8 @@
     </div>
   </footer>
 
-  <script src="js/data.js?v=8"></script>
-  <script src="js/main.js?v=8"></script>
-  <script src="js/admin.js?v=8"></script>
+  <script src="js/data.js?v=9"></script>
+  <script src="js/main.js?v=9"></script>
+  <script src="js/admin.js?v=9"></script>
 </body>
 </html>
