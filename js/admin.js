@@ -266,4 +266,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("f-pass").value = "";
     toast("Password changed ✅");
   });
+
+  document.getElementById("reset-pass").addEventListener("click", () => {
+    if (!confirm("Reset admin password back to admin123?")) return;
+    localStorage.removeItem(PASS_KEY);
+    toast("Password reset to admin123 🔁");
+  });
 });

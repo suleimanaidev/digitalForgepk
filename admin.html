@@ -42,6 +42,7 @@
       <input id="gate-pass" type="password" placeholder="Password" style="border:1.5px solid var(--line);border-radius:12px;padding:13px 15px;flex:1;outline:none" />
       <button class="btn-primary" type="submit">Login</button>
     </form>
+    <button type="button" id="reset-pass" style="margin-top:14px;background:none;border:none;color:var(--brand);font-size:0.82rem;font-weight:700;cursor:pointer;text-decoration:underline">Forgot password? Reset to admin123</button>
   </div>
 
   <!-- Panel -->
@@ -114,13 +115,13 @@
 
           <div class="field">
             <label for="f-video">Video URL — max <strong>1</strong> (YouTube link ya .mp4)</label>
-            <input id="f-video" type="url" placeholder="https://youtube.com/watch?v=... ya file.mp4" />
+            <input id="f-video" type="url" placeholder="https://youtube.com/watch?v=... or file.mp4" />
             <div class="media-hint">🎬 Only 1 video — shown alongside the gallery on the product page.</div>
           </div>
 
           <div class="field"><label for="f-tagline">Tagline</label><input id="f-tagline" type="text" placeholder="Short one-line summary of the product" /></div>
-          <div class="field"><label for="f-desc">Description</label><textarea id="f-desc" rows="3" placeholder="Product ke baare mein likhein..."></textarea></div>
-          <div class="field"><label for="f-feats">What's inside (har line = 1 point)</label><textarea id="f-feats" rows="4" placeholder="Point 1&#10;Point 2&#10;Point 3"></textarea></div>
+          <div class="field"><label for="f-desc">Description</label><textarea id="f-desc" rows="3" placeholder="Write about your product..."></textarea></div>
+          <div class="field"><label for="f-feats">What's inside (one point per line)</label><textarea id="f-feats" rows="4" placeholder="Point 1&#10;Point 2&#10;Point 3"></textarea></div>
 
           <div class="adm-inline">
             <div class="field"><label for="f-format">Format / delivery</label><input id="f-format" type="text" placeholder="PDF • Instant Download" /></div>
