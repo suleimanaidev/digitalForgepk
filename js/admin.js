@@ -117,7 +117,6 @@ function catalog() {
 function rowHtml(p, isHidden) {
   const old = p.oldPrice ? `<span class="old">${moneyOf(p.oldPrice)}</span>` : "";
   const price = p.price === 0 ? "Free" : moneyOf(p.price);
-  const cat = catInfoFor(p.category);
   const imgsN = Array.isArray(p.imgs) ? p.imgs.filter(Boolean).length : 0;
   const vidN = p.video ? 1 : 0;
   const linksN = productLinks ? (Array.isArray(p.links) ? p.links.filter((l) => l && l.url).length : 0) : 0;
@@ -131,7 +130,6 @@ function rowHtml(p, isHidden) {
       ${p.badge ? `<div style="font-size:0.7rem;color:var(--brand);font-weight:800;text-transform:uppercase;letter-spacing:.04em">${p.badge}</div>` : ""}
       <div style="font-size:0.68rem;color:var(--muted-2)">${(imgsN + vidN) > 0 ? `📷 ${imgsN}${vidN ? " · 🎬 1" : ""}` : "no media"}${dlBadge}</div>
     </td>
-    <td>${cat.icon} ${cat.name}</td>
     <td class="price-cell">${price}${old}</td>
     <td>${isHidden ? '<span style="color:var(--danger);font-weight:700">Hidden</span>' : '<span style="color:var(--green);font-weight:700">Live</span>'}</td>
     <td>
@@ -142,13 +140,57 @@ function rowHtml(p, isHidden) {
   </tr>`;
 }
 
-function renderAdmin(filter = "all") {
+function catRowHtml(catKey, count) {
+  const c = catInfoFor(catKey);
+  return `<tr class="cat-row"><td colspan="5"><span>${c.icon} ${c.name}</span> <span class="cat-count">${count}</span></td></tr>`;
+}
+
+function renderAdmin(filter = filterState) {
   const tbody = document.getElementById("admin-tbody");
+  renderCatChips();
   const c = catalog();
-  const list = filter === "hidden" ? c.hiddenList : c.shown;
-  tbody.innerHTML = list.length
-    ? list.map((p) => rowHtml(p, filter === "hidden" || c.hiddenSet.has(p.id))).join("")
-    : `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:26px">Nothing in this filter yet.</td></tr>`;
+  let list;
+  if (filter === "hidden") list = c.hiddenList;
+  else list = filter === "all" ? c.shown : c.shown.filter((p) => p.category === filter);
+  const q = admQuery.trim().toLowerCase();
+  if (q) list = list.filter((p) => (p.title + " " + p.tagline + " " + p.description).toLowerCase().includes(q));
+
+  const countEl = document.getElementById("prod-count");
+  if (countEl) countEl.textContent = list.length;
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:26px">Nothing in this filter yet${q ? " — try a different search" : ""}.</td></tr>`;
+    return;
+  }
+
+  let html = "";
+  if (filter === "all" && !q) {
+    const byCat = {};
+    list.forEach((p) => {
+      (byCat[p.category] = byCat[p.category] || []).push(p);
+    });
+    Object.keys(byCat).forEach((k) => {
+      html += catRowHtml(k, byCat[k].length);
+      html += byCat[k].map((p) => rowHtml(p, c.hiddenSet.has(p.id))).join("");
+    });
+  } else {
+    html = list.map((p) => rowHtml(p, c.hiddenSet.has(p.id))).join("");
+  }
+  tbody.innerHTML = html;
+}
+
+function renderCatChips() {
+  const box = document.getElementById("adm-cats");
+  if (!box) return;
+  const c = catalog();
+  const count = (k) =>
+    k === "all" ? c.shown.length : k === "hidden" ? c.hiddenList.length : c.shown.filter((p) => p.category === k).length;
+  const chip = (key, label) =>
+    `<button class="chip ${filterState === key ? "active" : ""}" data-cat="${key}">${label} <span class="chip-n">${count(key)}</span></button>`;
+  box.innerHTML =
+    chip("all", "All") +
+    CATEGORIES.map((cat) => chip(cat.key, `${cat.icon} ${cat.name}`)).join("") +
+    chip("hidden", "🗑 Hidden");
 }
 
 function fillCatSelect() {
@@ -306,6 +348,7 @@ function restoreProduct(id) {
 }
 
 let filterState = "all";
+let admQuery = "";
 function currentFilter() {
   return filterState;
 }
@@ -408,13 +451,17 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   );
   safe(() =>
-    document.querySelectorAll(".chip[data-filter]").forEach((chip) => {
-      chip.addEventListener("click", () => {
-        document.querySelectorAll(".chip[data-filter]").forEach((c) => c.classList.remove("active"));
-        chip.classList.add("active");
-        filterState = chip.dataset.filter;
-        renderAdmin(filterState);
-      });
+    byId("adm-cats").addEventListener("click", (e) => {
+      const chip = e.target.closest(".chip");
+      if (!chip || !byId("adm-cats").contains(chip)) return;
+      filterState = chip.dataset.cat;
+      renderAdmin();
+    })
+  );
+  safe(() =>
+    byId("adm-search").addEventListener("input", (e) => {
+      admQuery = e.target.value;
+      renderAdmin();
     })
   );
   safe(() =>

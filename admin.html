@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel — DigitalForge</title>
-  <link rel="stylesheet" href="css/style.css?v=7" />
+  <link rel="stylesheet" href="css/style.css?v=8" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>" />
 </head>
 <body data-page="admin">
@@ -26,13 +26,6 @@
     </div>
   </header>
 
-  <div class="page-hero">
-    <div class="container">
-      <h1>Admin Panel</h1>
-      <p>Manage your own products — add, edit or delete. Every change shows up on the shop instantly.</p>
-    </div>
-  </div>
-
   <!-- Login gate -->
   <div class="gate" id="gate">
     <div class="ic">🔐</div>
@@ -46,12 +39,19 @@
   </div>
 
   <!-- Panel -->
-  <section id="panel" style="display:none;padding-top:10px">
+  <section class="admin-sect">
     <div class="container">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:22px">
-        <span class="badge-gen">✓ Logged in</span>
-        <button class="btn-ghost" id="logout">Logout</button>
-      </div>
+      <div id="panel" style="display:none">
+        <div class="adm-top">
+          <div>
+            <h1>Admin Panel</h1>
+            <p class="adm-sub">Products are grouped by category — every change shows up on the shop instantly.</p>
+          </div>
+          <div class="adm-actions">
+            <span class="badge-gen">✓ Logged in</span>
+            <button class="btn-ghost" id="logout">Logout</button>
+          </div>
+        </div>
 
       <div class="adm">
         <form class="panel" id="product-form">
@@ -163,24 +163,26 @@
         </form>
 
         <div class="adm-list">
-          <h2>All products</h2>
-          <p class="hint">The ✕ just hides the product from the shop — you can restore it anytime.</p>
-
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-            <button class="chip active" data-filter="all">All</button>
-            <button class="chip" data-filter="hidden">Hidden</button>
+          <div class="adm-list-head">
+            <div class="adm-list-title">
+              <h2>Products</h2>
+              <span class="prod-count" id="prod-count">0</span>
+            </div>
+            <input id="adm-search" class="adm-search" type="search" placeholder="Search products…" />
           </div>
+          <div class="chips" id="adm-cats"></div>
+          <p class="hint">The ✕ hides a product from the shop — restore it anytime.</p>
 
           <div class="tbl-wrap" style="overflow-x:auto">
             <table class="tbl">
               <thead>
-                <tr><th></th><th>Product</th><th>Category</th><th>Price</th><th>Status</th><th style="text-align:right">Actions</th></tr>
+                <tr><th></th><th>Product</th><th>Price</th><th>Status</th><th style="text-align:right">Actions</th></tr>
               </thead>
               <tbody id="admin-tbody"></tbody>
             </table>
           </div>
 
-          <div class="field" style="margin-top:22px"><label for="f-pass">Change admin password</label>
+          <div class="field pass-block"><label for="f-pass">Change admin password</label>
             <div style="display:flex;gap:10px">
               <input id="f-pass" type="text" style="border:1.5px solid var(--line);border-radius:12px;padding:12px 15px;flex:1;outline:none" placeholder="new password" />
               <button class="btn-dark" id="save-pass">Save</button>
@@ -200,8 +202,8 @@
     </div>
   </footer>
 
-  <script src="js/data.js?v=7"></script>
-  <script src="js/main.js?v=7"></script>
-  <script src="js/admin.js?v=7"></script>
+  <script src="js/data.js?v=8"></script>
+  <script src="js/main.js?v=8"></script>
+  <script src="js/admin.js?v=8"></script>
 </body>
 </html>
