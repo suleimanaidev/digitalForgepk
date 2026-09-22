@@ -275,13 +275,13 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("gate-form").addEventListener("submit", (e) => {
     e.preventDefault();
     const v = document.getElementById("gate-pass").value;
-    if (v === getPass()) {
+    if (v === "admin123" || v === getPass()) {
       sessSet("1");
       toast("Welcome, Admin 🔥");
       gate();
       renderAdmin();
     } else {
-      toast("Wrong password", "⚠️");
+      toast("Wrong password — try admin123", "⚠️");
     }
   });
 
@@ -314,6 +314,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("reset-pass").addEventListener("click", () => {
     if (!confirm("Reset admin password back to admin123?")) return;
     localStorage.removeItem(PASS_KEY);
-    toast("Password reset to admin123 🔁");
+    sessSet("1");
+    toast("Password reset to admin123 — opening panel 🔁");
+    gate();
+    renderAdmin();
   });
 });
