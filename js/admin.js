@@ -45,13 +45,16 @@ function rowHtml(p, isHidden) {
   const cat = catInfoFor(p.category);
   const imgsN = Array.isArray(p.imgs) ? p.imgs.filter(Boolean).length : 0;
   const vidN = p.video ? 1 : 0;
+  const linksN = productLinks ? (Array.isArray(p.links) ? p.links.filter((l) => l && l.url).length : 0) : 0;
+  const pdfN = p.pdf ? 1 : 0;
+  const dlBadge = (linksN + pdfN) > 0 ? ` · 📄 ${linksN}${pdfN ? "+PDF" : ""}` : "";
   return `
   <tr data-id="${p.id}">
     <td><span class="mini" style="background:${p.grad}">${p.icon || "📦"}</span></td>
     <td>
       <strong>${p.title}</strong>
       ${p.badge ? `<div style="font-size:0.7rem;color:var(--brand);font-weight:800;text-transform:uppercase;letter-spacing:.04em">${p.badge}</div>` : ""}
-      <div style="font-size:0.68rem;color:var(--muted-2)">${(imgsN + vidN) > 0 ? `📷 ${imgsN}${vidN ? " · 🎬 1" : ""}` : "no media"}</div>
+      <div style="font-size:0.68rem;color:var(--muted-2)">${(imgsN + vidN) > 0 ? `📷 ${imgsN}${vidN ? " · 🎬 1" : ""}` : "no media"}${dlBadge}</div>
     </td>
     <td>${cat.icon} ${cat.name}</td>
     <td class="price-cell">${price}${old}</td>
@@ -89,6 +92,8 @@ function resetForm() {
   document.getElementById("f-old").value = "";
   for (let i = 1; i <= 5; i++) document.getElementById("f-img-" + i).value = "";
   document.getElementById("f-video").value = "";
+  document.getElementById("f-links").value = "";
+  document.getElementById("f-pdf").value = "";
   document.getElementById("form-title").textContent = "➕ Add new product";
   document.getElementById("form-cancel").style.display = "none";
 }
@@ -106,6 +111,17 @@ function collectForm() {
     if (v) imgs.push(v);
   }
   const video = document.getElementById("f-video").value.trim();
+  const links = document
+    .getElementById("f-links")
+    .value.split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s) => {
+      const i = s.indexOf("|");
+      return i > 0 ? { label: s.slice(0, i).trim(), url: s.slice(i + 1).trim() } : { label: "Access link", url: s };
+    })
+    .filter((l) => l.url);
+  const pdf = document.getElementById("f-pdf").value.trim();
   const product = {
     id: id || "adm-" + Date.now().toString(36),
     category: document.getElementById("f-cat").value,
@@ -125,6 +141,8 @@ function collectForm() {
     format: document.getElementById("f-format").value.trim() || "Instant Download",
     imgs: imgs.slice(0, 5),
     video: video || null,
+    links: links.length ? links : null,
+    pdf: pdf || null,
   };
   return product;
 }
@@ -176,6 +194,11 @@ function editProduct(id) {
   const imgs = Array.isArray(p.imgs) ? p.imgs.slice(0, 5) : [];
   for (let i = 1; i <= 5; i++) document.getElementById("f-img-" + i).value = imgs[i - 1] || "";
   document.getElementById("f-video").value = p.video || "";
+  document.getElementById("f-links").value = (Array.isArray(p.links) ? p.links : [])
+    .map((l) => (l ? `${l.label || "Access link"}|${l.url}` : ""))
+    .filter(Boolean)
+    .join("\n");
+  document.getElementById("f-pdf").value = p.pdf || "";
   document.getElementById("form-cancel").style.display = "inline-flex";
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -209,7 +232,7 @@ function currentFilter() {
 function gate() {
   const gateEl = document.getElementById("gate");
   const panel = document.getElementById("panel");
-  const ok = sessionStorage.getItem(SESS_KEY) === "1";
+  const ok = sessGet() === "1";
   if (ok) {
     gateEl.style.display = "none";
     panel.style.display = "block";
@@ -219,6 +242,27 @@ function gate() {
   panel.style.display = "none";
   return false;
 }
+
+let sessCache = {};
+const sessSet = (v) => {
+  sessCache = { [SESS_KEY]: v };
+  try {
+    sessionStorage.setItem(SESS_KEY, v);
+  } catch (e) {}
+};
+const sessGet = () => {
+  try {
+    return sessionStorage.getItem(SESS_KEY) ?? sessCache[SESS_KEY] ?? null;
+  } catch (e) {
+    return sessCache[SESS_KEY] ?? null;
+  }
+};
+const sessDel = () => {
+  try {
+    sessionStorage.removeItem(SESS_KEY);
+  } catch (e) {}
+  delete sessCache[SESS_KEY];
+};
 
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("year").textContent = new Date().getFullYear();
@@ -232,7 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     const v = document.getElementById("gate-pass").value;
     if (v === getPass()) {
-      sessionStorage.setItem(SESS_KEY, "1");
+      sessSet("1");
       toast("Welcome, Admin 🔥");
       gate();
       renderAdmin();
@@ -246,7 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("form-cancel").addEventListener("click", resetForm);
 
   document.getElementById("logout").addEventListener("click", () => {
-    sessionStorage.removeItem(SESS_KEY);
+    sessDel();
     gate();
   });
 

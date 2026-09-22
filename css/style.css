@@ -1751,6 +1751,97 @@ section {
   margin: 0 auto 28px;
 }
 
+.dl-section {
+  max-width: 720px;
+  margin: 8px auto 60px;
+  padding: 28px 22px;
+  border-radius: var(--radius);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-md);
+  scroll-margin-top: 90px;
+}
+
+.dl-section h2 {
+  font-size: 1.4rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.dl-note {
+  color: var(--muted);
+  font-size: 0.86rem;
+  margin-bottom: 18px;
+}
+
+.dl-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dl-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.dl-ic {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.dl-info {
+  flex: 1;
+  min-width: 150px;
+}
+
+.dl-info h4 {
+  font-weight: 800;
+  font-size: 0.97rem;
+  margin-bottom: 2px;
+}
+
+.dl-sub {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.dl-btn {
+  margin-left: auto;
+  padding: 11px 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.dl-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 520px) {
+  .dl-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
 .receipt {
   max-width: 420px;
   margin: 0 auto 28px;

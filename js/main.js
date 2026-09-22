@@ -62,6 +62,110 @@ function mediaPanel(sel, p, imgs, vid) {
 
 /* ---------- Spotlight removed ---------- */
 
+/* ---------- Downloads / delivery PDF ---------- */
+const productLinks = (p) =>
+  (Array.isArray(p.links) ? p.links : [])
+    .map((l) => (l && typeof l === "object" && l.url ? { label: (l.label || "Access link").trim(), url: l.url.trim() } : null))
+    .filter(Boolean);
+
+function buildLinksPdf(data) {
+  const esc = (s) => String(s ?? "").replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)").replace(/\r?\n/g, " ");
+  const W = 612, H = 792;
+  const lines = data.lines || [];
+  const ops = [];
+  let y;
+
+  ops.push("0.294 0.031 0.29 rg 0 700 612 92 re f");
+  ops.push("1 1 1 rg");
+  ops.push(`BT /F1 20 Tf 40 762 Td (${esc(data.store)}) Tj ET`);
+  ops.push(`BT /F1 12 Tf 40 741 Td (${esc("Your download file for: " + data.title)}) Tj ET`);
+  ops.push("0 0 0 rg");
+
+  y = 676;
+  const row = (label, val) => {
+    ops.push(`BT /F2 10 Tf 40 ${y} Td (${esc(label + ": " + val)}) Tj ET`);
+    y -= 20;
+  };
+  row("Order ref", data.ref);
+  row("Date", data.date);
+  row("Customer", data.name);
+  y -= 10;
+
+  ops.push(`BT /F1 13 Tf 40 ${y} Td (Your download links) Tj ET`);
+  y -= 22;
+
+  const rects = []; /* eslint-disable no-unused-vars */
+  const annots = [];
+  const addLink = (label, url) => {
+    ops.push(`BT /F1 11 Tf 40 ${y} Td (${esc((label ? label + ": " : "") + url)}) Tj ET`);
+    annots.push(`<< /Subtype /Link /Border [0 0 0] /Rect [40 ${y - 14} 560 ${y + 3}] /A << /S /URI /URI (${esc(url)}) >> >>`);
+    y -= 24;
+  };
+
+  lines.forEach((l) => addLink(l.label, l.url));
+  if (data.github) addLink("Source / GitHub", data.github);
+  y -= 4;
+
+  ops.push(`BT /F2 9 Tf 40 ${y} Td (${esc("Tip: click any link above, or copy it into your browser. Thank you for shopping at " + data.store + "!")}) Tj ET`);
+
+  const stream = ops.join("\n");
+  const streamLen = new TextEncoder().encode(stream).length;
+
+  const objects = [
+    "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n",
+    "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n",
+    `3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R /Annots 7 0 R >>\nendobj\n`,
+    "4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj\n",
+    "5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n",
+    `6 0 obj\n<< /Length ${streamLen} >>\nstream\n${stream}\nendstream\nendobj\n`,
+    `7 0 obj\n[ ${annots.join("\n  ")} ]\nendobj\n`,
+  ];
+
+  let pdf = "%PDF-1.4\n";
+  const offsets = [0];
+  objects.forEach((o) => {
+    offsets.push(pdf.length);
+    pdf += o;
+  });
+  const xrefPos = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  offsets.slice(1).forEach((n) => {
+    pdf += String(n).padStart(10, "0") + " 00000 n \n";
+  });
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefPos}\n%%EOF\n`;
+  return new Blob([pdf], { type: "application/pdf" });
+}
+
+function downloadProductPdf(p, order) {
+  if (p && p.pdf) {
+    window.open(p.pdf, "_blank", "noopener");
+    toast("Opening your delivery file 🔽");
+    return;
+  }
+  const links = productLinks(p);
+  if (!links.length) {
+    toast("No download links added for this product yet", "⚠️");
+    return;
+  }
+  const blob = buildLinksPdf({
+    title: p.title,
+    ref: order.ref,
+    date: new Date().toLocaleDateString("en-GB"),
+    name: order.name,
+    lines: links,
+    store: SITE.name,
+    github: SITE.github,
+  });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `DigitalForge-${p.id}-download.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast("Download started 🔽");
+}
+
 /* ---------- Toast ---------- */
 let toastTimer;
 function toast(msg, icon = "✅") {
@@ -499,7 +603,7 @@ function initCheckout() {
     const email = form.querySelector("#email").value;
     const name = form.querySelector("#name").value;
     const paid = payOpts.find((o) => o.classList.contains("selected"))?.dataset.method || "Debit / Credit Card";
-    localStorage.setItem("df_order", JSON.stringify({ name, email, total, method: paid, ref: "DF-" + Date.now().toString(36).toUpperCase() }));
+    localStorage.setItem("df_order", JSON.stringify({ name, email, total, method: paid, ref: "DF-" + Date.now().toString(36).toUpperCase(), items: items.map((p) => ({ id: p.id, qty: cart.find((c) => c.id === p.id)?.qty || 1 })) }));
     localStorage.removeItem(CART_KEY);
     location.href = "success.html";
   });
@@ -524,7 +628,38 @@ function initSuccess() {
       <div class="line"><span>Amount</span><strong>${money(order.total)}</strong></div>
       <div class="line"><span>Status</span><strong style="color:var(--green)">● Paid</strong></div>
     </div>
-    <a href="shop.html" class="btn-primary">Continue shopping</a>`;
+    <a href="#downloads" class="btn-primary">Continue to my downloads ↓</a>`;
+
+  const dl = document.querySelector("#downloads");
+  if (dl) {
+    const items = (order.items || [])
+      .map((i) => ({ p: PRODUCTS.find((x) => x.id === i.id), qty: i.qty }))
+      .filter((x) => x.p);
+    if (items.length) {
+      dl.innerHTML = `
+        <h2>Your downloads <span style="background:var(--brand);color:#fff;font-size:0.72rem;font-weight:800;padding:4px 10px;border-radius:999px;vertical-align:middle">🔽 ready</span></h2>
+        <p class="dl-note">Your delivery file is a PDF with every access link (Canva, pattern, GitHub…) inside. Click below to download each file.</p>
+        <div class="dl-list">
+          ${items
+            .map(
+              ({ p, qty }) => `
+            <div class="dl-card">
+              <span class="dl-ic" style="background:${p.grad}">${p.icon}</span>
+              <div class="dl-info">
+                <h4>${p.title}</h4>
+                <span class="dl-sub">${p.format || catInfo(p.category).name}${qty > 1 ? " · ×" + qty : ""}</span>
+              </div>
+              <button class="dl-btn" onclick="downloadProductPdf(PRODUCTS.find(p=>p.id==='${p.id}'), window.__order)">📥 Download file (PDF)</button>
+            </div>`
+            )
+            .join("")}
+        </div>
+        <p class="dl-note">Problem downloading? <a href="https://wa.me/923716774307?text=Hi%20DigitalForge%20%F0%9F%94%A5%20I%20need%20help%20with%20my%20download" target="_blank" rel="noopener" style="color:var(--brand);font-weight:700">Message us on WhatsApp</a> and we'll send your files instantly. 💬</p>
+        <p class="dl-note"><a href="shop.html" class="link-more">Continue shopping →</a></p>`;
+      window.__order = order;
+    }
+  }
+  window.scrollTo(0, 0);
 }
 
 /* ---------- Bootstrap ---------- */

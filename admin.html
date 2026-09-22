@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel — DigitalForge</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=3" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>" />
 </head>
 <body data-page="admin">
@@ -114,9 +114,21 @@
           </div>
 
           <div class="field">
-            <label for="f-video">Video URL — max <strong>1</strong> (YouTube link ya .mp4)</label>
+            <label for="f-video">Video URL — max <strong>1</strong> (YouTube link or .mp4)</label>
             <input id="f-video" type="url" placeholder="https://youtube.com/watch?v=... or file.mp4" />
             <div class="media-hint">🎬 Only 1 video — shown alongside the gallery on the product page.</div>
+          </div>
+
+          <div class="field">
+            <label for="f-links">Download links — one per line (each line: <strong>Label|URL</strong>)</label>
+            <textarea id="f-links" rows="4" placeholder="Canva template|https://canva.com/link&#10;Pattern file|https://...&#10;GitHub|https://github.com/..."></textarea>
+            <div class="media-hint">📄 These links become the client's PDF file after payment.</div>
+          </div>
+
+          <div class="field">
+            <label for="f-pdf">Custom PDF file URL (optional — a pre-made file downloads instead of the generated one)</label>
+            <input id="f-pdf" type="url" placeholder="https://example.com/product-delivery.pdf" />
+            <div class="media-hint">Leave empty to auto-generate the PDF from the links above.</div>
           </div>
 
           <div class="field"><label for="f-tagline">Tagline</label><input id="f-tagline" type="text" placeholder="Short one-line summary of the product" /></div>
@@ -173,8 +185,8 @@
     </div>
   </footer>
 
-  <script src="js/data.js"></script>
-  <script src="js/main.js"></script>
-  <script src="js/admin.js"></script>
+  <script src="js/data.js?v=3"></script>
+  <script src="js/main.js?v=3"></script>
+  <script src="js/admin.js?v=3"></script>
 </body>
 </html>

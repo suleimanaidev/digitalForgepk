@@ -27,6 +27,10 @@ const PRODUCTS = [
       "https://picsum.photos/seed/df-blanket-3/800/600",
     ],
     video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    links: [
+      { label: "Canva template", url: "https://www.canva.com/templates/" },
+      { label: "Pattern PDF file", url: "https://www.ravelry.com/patterns/library" },
+    ],
   },
   {
     id: "cp-02",
@@ -588,4 +592,5 @@ const SITE = {
   domain: "",
   currency: "$",
   tagline: "Quality digital products, instantly delivered.",
+  github: "https://github.com/suleimanaidev/digitalForgepk",
 };
