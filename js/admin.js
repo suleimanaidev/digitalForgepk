@@ -264,59 +264,83 @@ const sessDel = () => {
   delete sessCache[SESS_KEY];
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("year").textContent = new Date().getFullYear();
-  fillCatSelect();
-
-  if (gate()) {
-    renderAdmin();
+const byId = (id) => {
+  try {
+    return document.getElementById(id);
+  } catch (e) {
+    return null;
   }
+};
+const safe = (fn) => {
+  try {
+    return fn();
+  } catch (e) {
+    if (window.console && console.error) console.error("admin:", e);
+    return undefined;
+  }
+};
 
-  document.getElementById("gate-form").addEventListener("submit", (e) => {
+document.addEventListener("DOMContentLoaded", () => {
+  gate();
+
+  byId("gate-form")?.addEventListener("submit", (e) => {
     e.preventDefault();
-    const v = document.getElementById("gate-pass").value;
+    const v = byId("gate-pass").value;
     if (v === "admin123" || v === getPass()) {
       sessSet("1");
       toast("Welcome, Admin 🔥");
       gate();
-      renderAdmin();
+      safe(() => renderAdmin());
     } else {
+      const el = byId("gate-pass");
+      el.focus();
+      el.select();
       toast("Wrong password — try admin123", "⚠️");
     }
   });
 
-  document.getElementById("product-form").addEventListener("submit", saveProduct);
-
-  document.getElementById("form-cancel").addEventListener("click", resetForm);
-
-  document.getElementById("logout").addEventListener("click", () => {
-    sessDel();
-    gate();
-  });
-
-  document.querySelectorAll('.chip[data-filter]').forEach((chip) => {
-    chip.addEventListener("click", () => {
-      document.querySelectorAll('.chip[data-filter]').forEach((c) => c.classList.remove("active"));
-      chip.classList.add("active");
-      filterState = chip.dataset.filter;
-      renderAdmin(filterState);
-    });
-  });
-
-  document.getElementById("save-pass").addEventListener("click", () => {
-    const np = document.getElementById("f-pass").value.trim();
-    if (!np) return toast("Password cannot be empty", "⚠️");
-    localStorage.setItem(PASS_KEY, np);
-    document.getElementById("f-pass").value = "";
-    toast("Password changed ✅");
-  });
-
-  document.getElementById("reset-pass").addEventListener("click", () => {
-    if (!confirm("Reset admin password back to admin123?")) return;
+  byId("reset-pass")?.addEventListener("click", () => {
     localStorage.removeItem(PASS_KEY);
     sessSet("1");
     toast("Password reset to admin123 — opening panel 🔁");
     gate();
-    renderAdmin();
+    safe(() => renderAdmin());
   });
+
+  safe(() => {
+    byId("year").textContent = new Date().getFullYear();
+  });
+  safe(() => fillCatSelect());
+
+  if (sessGet() === "1") {
+    safe(() => renderAdmin());
+  }
+
+  safe(() => byId("product-form").addEventListener("submit", saveProduct));
+  safe(() => byId("form-cancel").addEventListener("click", resetForm));
+  safe(() =>
+    byId("logout").addEventListener("click", () => {
+      sessDel();
+      gate();
+    })
+  );
+  safe(() =>
+    document.querySelectorAll(".chip[data-filter]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll(".chip[data-filter]").forEach((c) => c.classList.remove("active"));
+        chip.classList.add("active");
+        filterState = chip.dataset.filter;
+        renderAdmin(filterState);
+      });
+    })
+  );
+  safe(() =>
+    byId("save-pass").addEventListener("click", () => {
+      const np = byId("f-pass").value.trim();
+      if (!np) return toast("Password cannot be empty", "⚠️");
+      localStorage.setItem(PASS_KEY, np);
+      byId("f-pass").value = "";
+      toast("Password changed ✅");
+    })
+  );
 });
