@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — DigitalForge</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>" />
+</head>
+<body data-page="admin">
+
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-badge">🔥</span>
+        <span>DigitalForge<small>Admin Panel</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="admin.html" class="active">Admin</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-btn" href="shop.html" aria-label="Shop">🛒</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <div class="container">
+      <h1>Admin Panel</h1>
+      <p>Manage your own products — add, edit or delete. Every change shows up on the shop instantly.</p>
+    </div>
+  </div>
+
+  <!-- Login gate -->
+  <div class="gate" id="gate">
+    <div class="ic">🔐</div>
+    <h1>Admin Login</h1>
+    <p>Default password: <strong>admin123</strong></p>
+    <form id="gate-form" style="display:flex;gap:10px">
+      <input id="gate-pass" type="password" placeholder="Password" style="border:1.5px solid var(--line);border-radius:12px;padding:13px 15px;flex:1;outline:none" />
+      <button class="btn-primary" type="submit">Login</button>
+    </form>
+  </div>
+
+  <!-- Panel -->
+  <section id="panel" style="display:none;padding-top:10px">
+    <div class="container">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:22px">
+        <span class="badge-gen">✓ Logged in</span>
+        <button class="btn-ghost" id="logout">Logout</button>
+      </div>
+
+      <div class="adm">
+        <form class="panel" id="product-form">
+          <h3 style="font-weight:900;margin-bottom:16px">
+            <span id="form-title">➕ Add new product</span>
+          </h3>
+
+          <div class="field"><label for="f-title">Product name *</label><input id="f-title" type="text" placeholder="e.g. Granny Square Cardigan" required /></div>
+
+          <div class="adm-inline">
+            <div class="field"><label for="f-cat">Category *</label>
+              <select id="f-cat" required></select>
+            </div>
+            <div class="field"><label for="f-icon">Icon (emoji)</label><input id="f-icon" type="text" placeholder="🧶" value="📦" /></div>
+          </div>
+
+          <div class="adm-inline">
+            <div class="field">
+              <label for="f-price">Real price ($) *</label>
+              <input id="f-price" type="number" step="0.01" min="0" placeholder="9.99" required />
+              <small style="color:var(--muted)">0 = Free product</small>
+            </div>
+            <div class="field">
+              <label for="f-old">Old price — line lag jayegi ($)</label>
+              <input id="f-old" type="number" step="0.01" min="0" placeholder="14.99" />
+              <small style="color:var(--muted)">Shown smaller with a line through it</small>
+            </div>
+          </div>
+
+          <div class="adm-inline">
+            <div class="field"><label for="f-badge">Badge (optional)</label><input id="f-badge" type="text" placeholder="Bestseller / FREE / New" /></div>
+            <div class="field"><label for="f-grad">Card color</label>
+              <select id="f-grad">
+                <option>linear-gradient(135deg,#4B084A,#7B1D78)</option>
+                <option>linear-gradient(135deg,#F6E8FF,#E3C7F0)</option>
+                <option>linear-gradient(135deg,#5B0B52,#8B2E86)</option>
+                <option>linear-gradient(135deg,#4B084A,#7B1D78)</option>
+                <option>linear-gradient(135deg,#F6E8FF,#D8B4E0)</option>
+                <option>linear-gradient(135deg,#7B1D78,#A5559E)</option>
+                <option>linear-gradient(135deg,#F6E8FF,#E3C7F0)</option>
+                <option>linear-gradient(135deg,#7B1D78,#A5559E)</option>
+                <option>linear-gradient(135deg,#4B084A,#7B1D78)</option>
+                <option>linear-gradient(135deg,#7B1D78,#A5559E)</option>
+                <option>linear-gradient(135deg,#4B084A,#7B1D78)</option>
+                <option>linear-gradient(135deg,#2E042E,#3A063E)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Product images — max <strong>5</strong> (paste URLs)</label>
+            <div class="imgs-box">
+              <input id="f-img-1" type="url" class="f-img" placeholder="Image URL 1 (https://...)" />
+              <input id="f-img-2" type="url" class="f-img" placeholder="Image URL 2 (optional)" />
+              <input id="f-img-3" type="url" class="f-img" placeholder="Image URL 3 (optional)" />
+              <input id="f-img-4" type="url" class="f-img" placeholder="Image URL 4 (optional)" />
+              <input id="f-img-5" type="url" class="f-img" placeholder="Image URL 5 (optional)" />
+            </div>
+            <div class="media-hint">📷 Max 5 images · the first image shows on cards, the rest in the product page gallery.</div>
+          </div>
+
+          <div class="field">
+            <label for="f-video">Video URL — max <strong>1</strong> (YouTube link ya .mp4)</label>
+            <input id="f-video" type="url" placeholder="https://youtube.com/watch?v=... ya file.mp4" />
+            <div class="media-hint">🎬 Only 1 video — shown alongside the gallery on the product page.</div>
+          </div>
+
+          <div class="field"><label for="f-tagline">Tagline</label><input id="f-tagline" type="text" placeholder="Short one-line summary of the product" /></div>
+          <div class="field"><label for="f-desc">Description</label><textarea id="f-desc" rows="3" placeholder="Product ke baare mein likhein..."></textarea></div>
+          <div class="field"><label for="f-feats">What's inside (har line = 1 point)</label><textarea id="f-feats" rows="4" placeholder="Point 1&#10;Point 2&#10;Point 3"></textarea></div>
+
+          <div class="adm-inline">
+            <div class="field"><label for="f-format">Format / delivery</label><input id="f-format" type="text" placeholder="PDF • Instant Download" /></div>
+            <div class="field"><label for="f-rating">Rating (1–5)</label><input id="f-rating" type="number" step="0.1" min="1" max="5" value="4.8" /></div>
+          </div>
+
+          <input type="hidden" id="f-id" />
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+            <button type="submit" class="btn-primary">Save product</button>
+            <button type="button" class="btn-ghost" id="form-cancel" style="display:none">Cancel edit</button>
+          </div>
+        </form>
+
+        <div class="adm-list">
+          <h2>All products</h2>
+          <p class="hint">The ✕ just hides the product from the shop — you can restore it anytime.</p>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+            <button class="chip active" data-filter="all">All</button>
+            <button class="chip" data-filter="hidden">Hidden</button>
+          </div>
+
+          <div class="tbl-wrap" style="overflow-x:auto">
+            <table class="tbl">
+              <thead>
+                <tr><th></th><th>Product</th><th>Category</th><th>Price</th><th>Status</th><th style="text-align:right">Actions</th></tr>
+              </thead>
+              <tbody id="admin-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="field" style="margin-top:22px"><label for="f-pass">Change admin password</label>
+            <div style="display:flex;gap:10px">
+              <input id="f-pass" type="text" style="border:1.5px solid var(--line);border-radius:12px;padding:12px 15px;flex:1;outline:none" placeholder="new password" />
+              <button class="btn-dark" id="save-pass">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top:none">
+        <span>© <span id="year">2026</span> DigitalForge — Admin Panel</span>
+        <span>Powered by DigitalForge tooling</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
