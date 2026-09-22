@@ -4,6 +4,84 @@ const SESS_KEY = "df_admin_session";
 const defaultPass = "admin123";
 const getPass = () => localStorage.getItem(PASS_KEY) || defaultPass;
 
+/* ---------- Local file uploads (images / video / pdf) ---------- */
+function fileToDataUrl(file, cb) {
+  const r = new FileReader();
+  r.onerror = () => toast("Could not read this file", "⚠️");
+  r.onload = () => cb(r.result);
+  r.readAsDataURL(file);
+}
+
+function compressImage(file, cb) {
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onerror = () => {
+    URL.revokeObjectURL(url);
+    toast("Not a valid image", "⚠️");
+  };
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+    const max = 1000;
+    const sc = Math.min(1, max / img.width);
+    const c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(img.width * sc));
+    c.height = Math.max(1, Math.round(img.height * sc));
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    cb(c.toDataURL("image/jpeg", 0.82));
+  };
+  img.src = url;
+}
+
+function bindUploads() {
+  safe(() => {
+    const uImg = byId("u-img");
+    uImg.addEventListener("change", () => {
+      [...(uImg.files || [])].forEach((f) => {
+        if (!String(f.type).startsWith("image/")) return toast("Please pick an image file", "⚠️");
+        compressImage(f, (data) => {
+          const slot = [1, 2, 3, 4, 5].find((i) => !byId("f-img-" + i).value);
+          if (!slot) return toast("All 5 image slots are full", "⚠️");
+          byId("f-img-" + slot).value = data;
+          toast("Image attached 📷");
+        });
+      });
+      uImg.value = "";
+    });
+  });
+
+  safe(() => {
+    const uVid = byId("u-video");
+    uVid.addEventListener("change", () => {
+      const f = uVid.files && uVid.files[0];
+      if (!f) return;
+      if (f.size > 2 * 1024 * 1024) {
+        toast("Video too big (max 2 MB) — use a YouTube or hosted .mp4 link instead", "⚠️");
+      } else {
+        fileToDataUrl(f, (d) => {
+          byId("f-video").value = d;
+          toast("Video attached 🎬");
+        });
+      }
+      uVid.value = "";
+    });
+  });
+
+  safe(() => {
+    const uPdf = byId("u-pdf");
+    uPdf.addEventListener("change", () => {
+      const f = uPdf.files && uPdf.files[0];
+      if (!f) return;
+      if (String(f.type) !== "application/pdf") return toast("Please pick a PDF file", "⚠️");
+      if (f.size > 3 * 1024 * 1024) toast("PDF bigger than 3 MB — a hosted link would be better", "⚠️");
+      fileToDataUrl(f, (d) => {
+        byId("f-pdf").value = d;
+        toast("PDF attached 📄");
+      });
+      uPdf.value = "";
+    });
+  });
+}
+
 const catInfoFor = (key) =>
   CATEGORIES.find((c) => c.key === key) || { key, name: key, icon: "📦", color: "var(--brand)" };
 
@@ -166,6 +244,12 @@ function saveProduct(e) {
   resetForm();
   renderAdmin(currentFilter());
   toast("Product saved ✅");
+  const used =
+    (String(localStorage.getItem(EXTRA_KEY) || "").length +
+      String(localStorage.getItem(OVERRIDE_KEY) || "").length +
+      String(localStorage.getItem(HIDDEN_KEY) || "").length) /
+    (1024 * 1024);
+  if (used > 4) toast(`Storage nearly full (${used.toFixed(1)} MB of ~5 MB) — use links instead of big files`, "⚠️");
 }
 
 function editProduct(id) {
@@ -303,6 +387,8 @@ document.addEventListener("DOMContentLoaded", () => {
     gate();
     safe(() => renderAdmin());
   });
+
+  bindUploads();
 
   safe(() => {
     byId("year").textContent = new Date().getFullYear();

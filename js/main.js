@@ -138,8 +138,18 @@ function buildLinksPdf(data) {
 
 function downloadProductPdf(p, order) {
   if (p && p.pdf) {
-    window.open(p.pdf, "_blank", "noopener");
-    toast("Opening your delivery file 🔽");
+    if (String(p.pdf).indexOf("data:") === 0) {
+      const a = document.createElement("a");
+      a.href = p.pdf;
+      a.download = `DigitalForge-${p.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      toast("Downloading PDF 📄");
+    } else {
+      window.open(p.pdf, "_blank", "noopener");
+      toast("Opening your delivery file 🔽");
+    }
     return;
   }
   const links = productLinks(p);

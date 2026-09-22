@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel — DigitalForge</title>
-  <link rel="stylesheet" href="css/style.css?v=6" />
+  <link rel="stylesheet" href="css/style.css?v=7" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>" />
 </head>
 <body data-page="admin">
@@ -102,7 +102,12 @@
           </div>
 
           <div class="field">
-            <label>Product images — max <strong>5</strong> (paste URLs)</label>
+            <label>Product images — max <strong>5</strong> (paste URLs or upload from device)</label>
+            <div class="upload-row">
+              <input type="file" id="u-img" accept="image/*" multiple />
+              <label class="upload-btn" for="u-img">⬆️ Upload from device</label>
+              <span class="upload-tip">Fills the first empty slot — images are compressed automatically</span>
+            </div>
             <div class="imgs-box">
               <input id="f-img-1" type="url" class="f-img" placeholder="Image URL 1 (https://...)" />
               <input id="f-img-2" type="url" class="f-img" placeholder="Image URL 2 (optional)" />
@@ -114,8 +119,13 @@
           </div>
 
           <div class="field">
-            <label for="f-video">Video URL — max <strong>1</strong> (YouTube link or .mp4)</label>
-            <input id="f-video" type="url" placeholder="https://youtube.com/watch?v=... or file.mp4" />
+            <label for="f-video">Video URL — max <strong>1</strong> (YouTube link, .mp4 or device upload)</label>
+            <input id="f-video" type="url" placeholder="https://youtube.com/watch?v=... or file.mp4 / mp4 data upload" />
+            <div class="upload-row">
+              <input type="file" id="u-video" accept="video/*" />
+              <label class="upload-btn" for="u-video">⬆️ Upload video</label>
+              <span class="upload-tip">Small files only (under 2 MB) — bigger videos need a YouTube or hosted .mp4 link</span>
+            </div>
             <div class="media-hint">🎬 Only 1 video — shown alongside the gallery on the product page.</div>
           </div>
 
@@ -126,8 +136,13 @@
           </div>
 
           <div class="field">
-            <label for="f-pdf">Custom PDF file URL (optional — a pre-made file downloads instead of the generated one)</label>
+            <label for="f-pdf">Custom PDF file URL or upload (optional — a pre-made file downloads instead of the generated one)</label>
             <input id="f-pdf" type="url" placeholder="https://example.com/product-delivery.pdf" />
+            <div class="upload-row">
+              <input type="file" id="u-pdf" accept="application/pdf,.pdf" />
+              <label class="upload-btn" for="u-pdf">⬆️ Upload PDF</label>
+              <span class="upload-tip">Under 3 MB recommended — bigger PDFs are better on Google Drive / a link</span>
+            </div>
             <div class="media-hint">Leave empty to auto-generate the PDF from the links above.</div>
           </div>
 
@@ -185,8 +200,8 @@
     </div>
   </footer>
 
-  <script src="js/data.js?v=6"></script>
-  <script src="js/main.js?v=6"></script>
-  <script src="js/admin.js?v=6"></script>
+  <script src="js/data.js?v=7"></script>
+  <script src="js/main.js?v=7"></script>
+  <script src="js/admin.js?v=7"></script>
 </body>
 </html>
