@@ -1,7 +1,4 @@
 const PASS_KEY = "df_admin_pass";
-const EXTRA_KEY = "df_extra_products";
-const HIDDEN_KEY = "df_hidden_products";
-const OVERRIDE_KEY = "df_override_products";
 const SESS_KEY = "df_admin_session";
 
 const defaultPass = "admin123";
